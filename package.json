@@ -1,0 +1,30 @@
+{
+  "name": "34)-capstone---book-notes",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "build:css": "tailwindcss -i ./src/input.css -o ./src/output.css --watch",
+    "start": "npx tailwindcss -i ./src/input.css -o ./src/output.css && nodemon index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.7.7",
+    "body-parser": "^1.20.3",
+    "dotenv": "^16.4.5",
+    "ejs": "^3.1.10",
+    "express": "^4.21.1",
+    "method-override": "^3.0.0",
+    "node-fetch": "^3.3.2",
+    "pg": "^8.13.1"
+  },
+  "description": "",
+  "devDependencies": {
+    "@tailwindcss/line-clamp": "^0.4.4",
+    "concurrently": "^9.0.1",
+    "daisyui": "^4.12.14",
+    "tailwindcss": "^3.4.14"
+  }
+}

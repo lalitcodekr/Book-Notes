@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Book Notes App</title>
+    <link rel="stylesheet" href="/output.css" />
+  </head>
+  <body
+    class="min-h-screen bg-gradient-to-br from-blue-50 to-teal-50 dark:from-blue-900 dark:to-teal-900 flex flex-col"
+  >
+    <%- include('./partials/header') %>
+
+    <!-- Search Section -->
+    <div class="max-w-6xl mx-auto p-6">
+      <div class="flex gap-4 mb-6">
+        <input
+          type="text"
+          id="searchInput"
+          placeholder="Search books..."
+          class="flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+          onkeypress="if(event.key === 'Enter') searchBooks()"
+        />
+        <button
+          onclick="searchBooks()"
+          class="bg-blue-700 text-white px-6 py-2 rounded-lg hover:bg-blue-800"
+        >
+          Search
+        </button>
+      </div>
+
+      <!-- Sort Controls -->
+      <div class="flex gap-4 mb-6">
+        <button
+          onclick="sortBy('rating')"
+          class="bg-teal-100 text-blue-800 px-4 py-2 rounded hover:bg-teal-200"
+        >
+          Sort by Rating
+        </button>
+        <button
+          onclick="sortBy('date')"
+          class="bg-teal-100 text-blue-800 px-4 py-2 rounded hover:bg-teal-200"
+        >
+          Sort by Date
+        </button>
+        <button
+          onclick="sortBy('title')"
+          class="bg-teal-100 text-blue-800 px-4 py-2 rounded hover:bg-teal-200"
+        >
+          Sort by Title
+        </button>
+      </div>
+
+      <!-- Books Carousel -->
+      <div class="container mx-auto px-4">
+        <div
+          class="carousel carousel-center max-w-full p-4 space-x-4 rounded-box"
+        >
+          <% books.forEach(book => { %>
+          <div class="carousel-item">
+            <div
+              class="card w-[300px] bg-base-100 shadow-xl"
+              data-rating="<%= book.rating %>"
+              data-date="<%= book.read_date %>"
+              data-title="<%= book.title %>"
+            >
+              <figure
+                class="h-[200px] bg-gray-800 flex items-center justify-center overflow-hidden"
+              >
+                <% if (book.thumbnail) { %>
+                <img
+                  src="<%= book.thumbnail %>"
+                  alt="<%= book.title %>"
+                  class="w-full h-full object-cover"
+                  onerror="this.onerror=null; this.src=''; this.parentElement.innerHTML='<span class=\'text-gray-400\'>No Image Available</span>'"
+                />
+                <% } else { %>
+                <span class="text-gray-400">No Image Available</span>
+                <% } %>
+              </figure>
+
+              <div class="card-body">
+                <h2 class="card-title"><%= book.title %></h2>
+                <p>by <%= book.author %></p>
+
+                <div class="flex items-center">
+                  <% for(let i = 0; i < 10; i++) { %>
+                  <span class="text-warning">
+                    <%= i < book.rating ? '★' : '☆' %>
+                  </span>
+                  <% } %>
+                  <span class="ml-2">(<%= book.rating %>/10)</span>
+                </div>
+
+                <p class="text-base-content/60">
+                  <%= book.read_date ? new
+                  Date(book.read_date).toLocaleDateString() : 'No date' %>
+                </p>
+
+                <div class="card-actions justify-end mt-4">
+                  <button
+                    onclick="handleEdit('<%= book.id %>', '<%= book.title %>', '<%= book.author %>', '<%= book.isbn %>', '<%= book.rating %>', '<%= book.read_date %>', '<%= book.notes %>')"
+                    class="btn btn-primary"
+                  >
+                    Edit
+                  </button>
+                  <form
+                    onsubmit="return handleDelete(event, '<%= book.id %>')"
+                    class="inline"
+                  >
+                    <button type="submit" class="btn btn-error">Delete</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+          <% }); %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modals -->
+    <!-- Add Book Modal -->
+    <dialog
+      id="addBookModal"
+      class="modal p-0 rounded-lg shadow-xl bg-gradient-to-t from-gray-400 to-white"
+    >
+      <div class="w-full max-w-2xl bg-white rounded-lg">
+        <div class="p-6">
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-2xl font-bold text-black">Add New Book</h2>
+            <button
+              onclick="closeModal('addBookModal')"
+              class="text-gray-500 hover:text-gray-700"
+            >
+              ×
+            </button>
+          </div>
+          <form
+            action="/books"
+            method="POST"
+            class="space-y-4 bg-slate-300 p-4 rounded-lg"
+          >
+            <div>
+              <label class="block text-sm font-medium mb-1 text-black"
+                >Title</label
+              >
+              <input
+                type="text"
+                name="title"
+                required
+                class="w-full px-3 py-2 border rounded text-white"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1 text-black"
+                >Author</label
+              >
+              <input
+                type="text"
+                name="author"
+                required
+                class="w-full px-3 py-2 border rounded text-white"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1 text-black"
+                >ISBN</label
+              >
+              <input
+                type="text"
+                name="isbn"
+                class="w-full px-3 py-2 border rounded text-white"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1 text-black"
+                >Description</label
+              >
+              <textarea
+                name="description"
+                rows="4"
+                class="w-full px-3 py-2 border rounded text-white"
+              ></textarea>
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1 text-black"
+                >Rating (1-10)</label
+              >
+              <input
+                type="number"
+                name="rating"
+                min="1"
+                max="10"
+                class="w-full px-3 py-2 border rounded text-white"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1 text-black"
+                >Read Date</label
+              >
+              <input
+                type="date"
+                name="read_date"
+                class="w-full px-3 py-2 border rounded text-white"
+              />
+            </div>
+            <!-- Hidden field for thumbnail -->
+            <input type="hidden" name="thumbnail" />
+
+            <button
+              type="submit"
+              class="w-full bg-blue-600 text-black py-2 rounded hover:bg-blue-700"
+            >
+              Add Book
+            </button>
+          </form>
+        </div>
+      </div>
+    </dialog>
+
+    <!-- Book Details Modal -->
+    <dialog
+      id="bookDetailsModal"
+      class="modal p-0 rounded-lg shadow-xl backdrop:bg-gray-800/50"
+    ></dialog>
+
+    <!-- Search Results Modal -->
+    <dialog
+      id="searchModal"
+      class="modal p-0 rounded-lg shadow-xl backdrop:bg-gray-800/50"
+    >
+      <div class="w-full max-w-2xl bg-white rounded-lg">
+        <div class="p-6">
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-2xl font-bold text-white">Search Results</h2>
+            <button
+              onclick="closeModal('searchModal')"
+              class="text-gray-500 hover:text-gray-700"
+            >
+              ×
+            </button>
+          </div>
+          <div id="searchResults" class="max-h-[60vh] overflow-y-auto">
+            <!-- Search results will be inserted here -->
+          </div>
+        </div>
+      </div>
+    </dialog>
+
+    <!-- Edit Book Modal -->
+    <dialog
+      id="editBookModal"
+      class="modal p-0 rounded-lg shadow-xl backdrop:bg-gray-800/50"
+    >
+      <div class="w-full max-w-2xl bg-white rounded-lg">
+        <div class="p-6">
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-2xl font-bold text-white">Edit Book</h2>
+            <button
+              onclick="closeModal('editBookModal')"
+              class="text-gray-500 hover:text-gray-700"
+            >
+              ×
+            </button>
+          </div>
+          <form id="editBookForm" class="space-y-4">
+            <input type="hidden" id="editBookId" name="id" />
+            <div>
+              <label class="block text-sm font-medium mb-1 text-white"
+                >Title</label
+              >
+              <input
+                type="text"
+                id="editTitle"
+                name="title"
+                required
+                class="w-full px-3 py-2 border rounded text-white"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1 text-white"
+                >Author</label
+              >
+              <input
+                type="text"
+                id="editAuthor"
+                name="author"
+                required
+                class="w-full px-3 py-2 border rounded text-white"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1 text-white"
+                >ISBN</label
+              >
+              <input
+                type="text"
+                id="editIsbn"
+                name="isbn"
+                class="w-full px-3 py-2 border rounded text-white"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1 text-white"
+                >Rating (1-10)</label
+              >
+              <input
+                type="number"
+                id="editRating"
+                name="rating"
+                min="1"
+                max="10"
+                class="w-full px-3 py-2 border rounded text-white"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1 text-white"
+                >Read Date</label
+              >
+              <input
+                type="date"
+                id="editReadDate"
+                name="read_date"
+                class="w-full px-3 py-2 border rounded text-white"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1 text-white"
+                >Notes</label
+              >
+              <textarea
+                id="editNotes"
+                name="notes"
+                rows="4"
+                class="w-full px-3 py-2 border rounded text-white"
+              ></textarea>
+            </div>
+            <button
+              type="submit"
+              class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+            >
+              Update Book
+            </button>
+          </form>
+        </div>
+      </div>
+    </dialog>
+
+    <script>
+      // Search functionality
+      async function searchBooks() {
+        const searchInput = document.getElementById("searchInput");
+        const query = searchInput.value.trim();
+
+        if (!query) {
+          alert("Please enter a search term");
+          return;
+        }
+
+        try {
+          const response = await fetch(
+            `/api/books/search/${encodeURIComponent(query)}`
+          );
+          const data = await response.json();
+
+          if (!data.success) {
+            throw new Error(data.message);
+          }
+
+          displaySearchResults(data.data);
+        } catch (error) {
+          console.error("Search error:", error);
+          alert(error.message || "Failed to search books");
+        }
+      }
+
+      // Add the missing displaySearchResults function
+      function displaySearchResults(books) {
+        const searchModal = document.getElementById("searchModal");
+        const searchResults = document.getElementById("searchResults");
+
+        // Clear previous results
+        searchResults.innerHTML = "";
+
+        if (!books.length) {
+          searchResults.innerHTML =
+            '<p class="text-center p-4">No books found</p>';
+          return;
+        }
+
+        // Add each book to the results
+        books.forEach((book) => {
+          const bookElement = document.createElement("div");
+          bookElement.className = "book-result p-4 border-b hover:bg-gray-50";
+          bookElement.innerHTML = `
+            <div class="flex gap-4">
+              ${
+                book.thumbnail
+                  ? `<img src="${book.thumbnail}" alt="${book.title}" class="w-20 h-auto object-cover">`
+                  : '<div class="w-20 h-28 bg-gray-200"></div>'
+              }
+              <div class="flex-1">
+                <h3 class="font-bold text-lg">${book.title}</h3>
+                <p class="text-gray-600">${book.author}</p>
+                <p class="text-sm text-gray-500 mt-2 line-clamp-2">${
+                  book.description
+                }</p>
+                <button onclick="selectBook(${JSON.stringify(book).replace(
+                  /"/g,
+                  "&quot;"
+                )})" 
+                        class="mt-2 bg-blue-600 text-white px-4 py-1 rounded hover:bg-blue-700">
+                  Select
+                </button>
+              </div>
+            </div>
+          `;
+          searchResults.appendChild(bookElement);
+        });
+
+        // Show the modal
+        searchModal.showModal();
+      }
+
+      // Add the selectBook function
+      function selectBook(book) {
+        // Close search modal first
+        document.getElementById("searchModal").close();
+
+        // Open add book modal
+        const addBookModal = document.getElementById("addBookModal");
+        addBookModal.showModal();
+
+        // Fill the form fields with book details
+        document.querySelector('input[name="title"]').value = book.title || "";
+        document.querySelector('input[name="author"]').value =
+          book.author || "";
+        document.querySelector('input[name="isbn"]').value = book.isbn || "";
+        document.querySelector('textarea[name="description"]').value =
+          book.description || "";
+
+        // If you have these fields in your form, fill them too
+        if (book.thumbnail) {
+          document.querySelector('input[name="thumbnail"]').value =
+            book.thumbnail;
+        }
+        if (book.publishedDate) {
+          document.querySelector('input[name="published_date"]').value =
+            book.publishedDate;
+        }
+        if (book.rating) {
+          document.querySelector('input[name="rating"]').value = book.rating;
+        }
+      }
+
+      // Modal functions
+      function showAddBookModal() {
+        document.getElementById("addBookModal").showModal();
+      }
+
+      function closeModal(modalId) {
+        document.getElementById(modalId).close();
+      }
+
+      // Sort functions
+      function sortBy(criteria) {
+        const carousel = document.querySelector(".carousel");
+        const items = Array.from(carousel.children);
+
+        items.sort((a, b) => {
+          const cardA = a.querySelector(".card");
+          const cardB = b.querySelector(".card");
+
+          const valueA = cardA.dataset[criteria];
+          const valueB = cardB.dataset[criteria];
+
+          if (criteria === "date") {
+            return new Date(valueB) - new Date(valueA);
+          }
+          if (criteria === "rating") {
+            return valueB - valueA;
+          }
+          return valueA.localeCompare(valueB);
+        });
+
+        // Clear and re-append sorted items
+        carousel.innerHTML = "";
+        items.forEach((item) => carousel.appendChild(item));
+      }
+
+      async function handleDelete(event, bookId) {
+        event.preventDefault();
+
+        if (!confirm("Are you sure you want to delete this book?")) {
+          return false;
+        }
+
+        try {
+          const response = await fetch(`/delete/${bookId}`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+
+          const data = await response.json();
+
+          if (!response.ok) {
+            throw new Error(data.error || "Failed to delete book");
+          }
+
+          // Remove the book card from the DOM
+          const bookCard = event.target.closest(".carousel-item");
+          bookCard.remove();
+
+          // Show success message
+          alert("Book deleted successfully");
+        } catch (error) {
+          console.error("Error:", error);
+          alert(error.message || "Failed to delete book. Please try again.");
+        }
+      }
+
+      function handleEdit(id, title, author, isbn, rating, readDate, notes) {
+        // Populate the form fields
+        document.getElementById("editBookId").value = id;
+        document.getElementById("editTitle").value = title;
+        document.getElementById("editAuthor").value = author;
+        document.getElementById("editIsbn").value = isbn;
+        document.getElementById("editRating").value = rating;
+        document.getElementById("editReadDate").value = readDate;
+        document.getElementById("editNotes").value = notes;
+
+        // Show the modal
+        document.getElementById("editBookModal").showModal();
+      }
+
+      // Add event listener for the edit form
+      document
+        .getElementById("editBookForm")
+        .addEventListener("submit", async (event) => {
+          event.preventDefault();
+
+          const bookId = document.getElementById("editBookId").value;
+          const formData = new FormData(event.target);
+          const bookData = Object.fromEntries(formData.entries());
+
+          try {
+            const response = await fetch(`/edit/${bookId}`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(bookData),
+            });
+
+            if (!response.ok) {
+              throw new Error("Failed to update book");
+            }
+
+            // Close the modal
+            document.getElementById("editBookModal").close();
+
+            // Refresh the page to show updated data
+            window.location.reload();
+          } catch (error) {
+            console.error("Error:", error);
+            alert(error.message || "Failed to update book. Please try again.");
+          }
+        });
+
+      async function updateThumbnails() {
+        try {
+          await fetch("/update-thumbnails", { method: "POST" });
+          window.location.reload();
+        } catch (error) {
+          console.error("Error updating thumbnails:", error);
+          alert("Failed to update thumbnails");
+        }
+      }
+    </script>
+
+    <%- include('./partials/footer') %>
+  </body>
+</html>

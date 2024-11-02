@@ -1,0 +1,108 @@
+<div
+  class="flex-none w-full sm:w-80 bg-white rounded-lg shadow-lg overflow-hidden"
+>
+  <!-- Image container -->
+  <div class="h-48 sm:h-56 w-full bg-gray-100">
+    <% if (book.thumbnail) { %>
+    <img
+      src="<%= book.thumbnail %>"
+      alt="<%= book.title %>"
+      class="w-full h-full object-cover"
+    />
+    <% } else { %>
+    <div
+      class="w-full h-full bg-gray-200 flex items-center justify-center text-gray-500 text-sm"
+    >
+      No Image Available
+    </div>
+    <% } %>
+  </div>
+
+  <!-- Content container -->
+  <div class="p-4 sm:p-6 flex flex-col">
+    <h3 class="text-lg sm:text-xl font-bold mb-2 sm:mb-3 break-words">
+      <%= book.title %>
+    </h3>
+    <p class="text-gray-600 text-sm sm:text-base mb-2 sm:mb-3">
+      by <%= book.author %>
+    </p>
+
+    <!-- Rating stars -->
+    <div class="flex items-center mb-2 sm:mb-3">
+      <div class="flex text-sm sm:text-base">
+        <% for(let i = 0; i < book.rating; i++) { %>
+        <span class="text-yellow-400">★</span>
+        <% } %> <% for(let i = book.rating; i < 10; i++) { %>
+        <span class="text-gray-300">★</span>
+        <% } %>
+      </div>
+      <span class="ml-2 text-xs sm:text-sm text-gray-600"
+        >(<%= book.rating %>/10)</span
+      >
+    </div>
+
+    <p class="text-xs sm:text-sm text-gray-500 mb-3 sm:mb-4">
+      <%= new Date(book.read_date).toLocaleDateString() %>
+    </p>
+
+    <!-- Action Buttons -->
+    <div class="flex gap-2 mt-auto">
+      <form action="/edit/<%= book.id %>" method="GET" class="flex-1">
+        <button
+          type="submit"
+          class="w-full bg-teal-500 text-white px-4 py-2 rounded hover:bg-teal-600 transition-colors"
+        >
+          Edit
+        </button>
+      </form>
+
+      <form
+        onsubmit="return deleteBook(event, '<%= book.id %>')"
+        class="flex-1"
+      >
+        <button
+          type="submit"
+          class="w-full bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors"
+        >
+          Delete
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  function deleteBook(event, bookId) {
+    event.preventDefault();
+    if (confirm("Are you sure you want to delete this book?")) {
+      fetch(`/books/${bookId}`, { method: "DELETE" }).then((response) => {
+        if (response.ok) {
+          window.location.reload();
+        }
+      });
+    }
+  }
+
+  function scrollCarousel(direction) {
+    const carousel = document.querySelector(".overflow-x-auto");
+    const scrollAmount = 300;
+
+    carousel.scrollBy({
+      left: direction === "left" ? -scrollAmount : scrollAmount,
+      behavior: "smooth",
+    });
+  }
+
+  // Hide scrollbar but keep functionality
+  const style = document.createElement("style");
+  style.textContent = `
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+`;
+  document.head.appendChild(style);
+</script>

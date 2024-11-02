@@ -1,0 +1,77 @@
+<div
+  class="carousel carousel-center rounded-box p-2 sm:p-4 space-x-2 sm:space-x-4"
+>
+  <% books.forEach(book => { %>
+  <div class="carousel-item">
+    <div class="card w-[280px] sm:w-[300px] bg-base-100 shadow-xl">
+      <figure class="h-[180px] sm:h-[200px] bg-gray-200">
+        <span class="text-gray-500 text-sm sm:text-base"
+          >No Image Available</span
+        >
+      </figure>
+
+      <div class="card-body p-4 sm:p-6">
+        <h2 class="card-title text-lg sm:text-xl"><%= book.title %></h2>
+        <p class="text-sm sm:text-base">by <%= book.author %></p>
+
+        <div class="flex items-center">
+          <% for(let i = 0; i < 10; i++) { %>
+          <span class="text-yellow-400 text-sm sm:text-base">
+            <%= i < book.rating ? '★' : '☆' %>
+          </span>
+          <% } %>
+          <span class="ml-2 text-sm sm:text-base">(<%= book.rating %>/10)</span>
+        </div>
+
+        <p class="text-gray-500 text-xs sm:text-sm"><%= book.date %></p>
+
+        <div class="card-actions justify-end mt-3 sm:mt-4">
+          <button
+            onclick="location.href='/books/edit/<%= book.id %>'"
+            class="btn btn-primary btn-sm sm:btn-md"
+          >
+            Edit
+          </button>
+          <form
+            onsubmit="return handleDelete(event, '<%= book.id %>')"
+            class="inline"
+          >
+            <button type="submit" class="btn btn-error">Delete</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <% }) %>
+</div>
+
+<script>
+  function handleDelete(event, bookId) {
+    event.preventDefault();
+
+    fetch(`/books/${bookId}`, { method: "DELETE" })
+      .then((response) => {
+        if (!response.ok) throw new Error("Failed to delete");
+        const bookCard = event.target.closest(".book-card");
+        bookCard.remove();
+        showToast("Book deleted successfully", "success");
+      })
+      .catch((error) => {
+        showToast("Failed to delete book. Please try again.", "error");
+      });
+  }
+
+  function showToast(message, type) {
+    const toast = document.createElement("div");
+    toast.className = `fixed top-4 right-4 p-4 rounded-lg text-white transform transition-all duration-300 ${
+      type === "error" ? "bg-red-500" : "bg-green-500"
+    }`;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+      toast.classList.add("opacity-0");
+      setTimeout(() => toast.remove(), 300);
+    }, 3000);
+  }
+</script>

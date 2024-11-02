@@ -1,0 +1,38 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Add custom styles */
+@layer components {
+  .book-card-container {
+    @apply grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-6;
+  }
+
+  .book-card {
+    @apply bg-white rounded-lg shadow-md p-4 transition-all duration-300 hover:shadow-lg;
+  }
+
+  .book-cover {
+    @apply relative w-full aspect-[2/3] bg-gray-100 rounded-lg overflow-hidden;
+  }
+
+  .book-cover img {
+    @apply absolute inset-0 w-full h-full object-cover transition-opacity duration-300;
+  }
+
+  .modal-overlay {
+    @apply fixed inset-0 bg-black/50 z-50 hidden;
+  }
+
+  .modal-overlay.show {
+    @apply flex items-center justify-center;
+  }
+
+  .modal-content {
+    @apply bg-base-100 p-6 rounded-lg shadow-xl w-full max-w-md mx-4 transform -translate-y-full transition-transform duration-300;
+  }
+
+  .modal-overlay.show .modal-content {
+    @apply translate-y-0;
+  }
+}
