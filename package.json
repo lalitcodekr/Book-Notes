@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "build:css": "tailwindcss -i ./src/input.css -o ./src/output.css --watch",
-    "start": "npx tailwindcss -i ./src/input.css -o ./src/output.css && nodemon index.js"
+    "start": "npx tailwindcss -i ./src/input.css -o ./src/output.css && nodemon index.js",
+    "migrate": "node migrations/init.js"
   },
   "keywords": [],
   "author": "",
