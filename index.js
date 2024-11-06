@@ -7,17 +7,18 @@ import dotenv from "dotenv";
 import methodOverride from "method-override";
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 
 // Load environment variables
 dotenv.config();
 
 // Initialize Express app and set port
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 // Configure __dirname for ES modules
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const __dirname = dirname(__filename);
 
 // Configure Express middleware
 app.use(bodyParser.urlencoded({ extended: true }));

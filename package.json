@@ -6,7 +6,8 @@
   "scripts": {
     "build:css": "tailwindcss -i ./src/input.css -o ./src/output.css --watch",
     "start": "npx tailwindcss -i ./src/input.css -o ./src/output.css && nodemon index.js",
-    "migrate": "node migrations/init.js"
+    "migrate": "node migrations/init.js",
+    "build": "npx tailwindcss -i ./src/input.css -o ./public/output.css --minify"
   },
   "keywords": [],
   "author": "",
