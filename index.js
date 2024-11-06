@@ -28,8 +28,7 @@ app.set("view engine", "ejs");
 app.use(methodOverride("_method"));
 
 // Configure database connection pool
-const { Pool } = require('pg');
-const dbConfig = require('./config/database');
+const { Pool } = pg;
 
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
