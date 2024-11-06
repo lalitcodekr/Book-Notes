@@ -27,13 +27,10 @@ app.set("view engine", "ejs");
 app.use(methodOverride("_method"));
 
 // Configure database connection pool
-const pool = new pg.Pool({
-  user: process.env.DB_USER,
-  host: process.env.DB_HOST,
-  database: process.env.DB_NAME,
-  password: process.env.DB_PASSWORD,
-  port: process.env.DB_PORT
-});
+const { Pool } = require('pg');
+const dbConfig = require('./config/database');
+
+const pool = new Pool(dbConfig);
 
 // Test database connection
 pool.connect((err, _client, done) => {
