@@ -30,7 +30,12 @@ app.use(methodOverride("_method"));
 const { Pool } = require('pg');
 const dbConfig = require('./config/database');
 
-const pool = new Pool(dbConfig);
+const pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: {
+        rejectUnauthorized: false
+    }
+});
 
 // Test database connection
 pool.connect((err, _client, done) => {
