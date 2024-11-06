@@ -2929,6 +2929,10 @@ html {
   max-height: 60vh;
 }
 
+.max-h-\[90vh\] {
+  max-height: 90vh;
+}
+
 .min-h-screen {
   min-height: 100vh;
 }
